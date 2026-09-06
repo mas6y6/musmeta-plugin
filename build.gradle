@@ -1,0 +1,54 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.example'
+version = '1.0.0'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = 'https://maven.fabricmc.net/' }
+}
+
+// Keep these in sync with the MusMeta root gradle.properties, or bump them
+// to whatever MusMeta version you are building against.
+def frameworkVersion = providers.gradleProperty('framework').get()
+def mixinVersion = providers.gradleProperty('mixin').get()
+def asmVersion = providers.gradleProperty('asm').get()
+def slf4jVersion = providers.gradleProperty('slf4j').get()
+
+dependencies {
+    // MusMeta's plugin API. Published locally via:
+    //   gradlew :plugins:framework:publishToMavenLocal
+    compileOnly "com.mas6y6:framework:$frameworkVersion"
+
+    compileOnly "net.fabricmc:sponge-mixin:$mixinVersion"
+    compileOnly "org.ow2.asm:asm:$asmVersion"
+    compileOnly "org.ow2.asm:asm-tree:$asmVersion"
+    compileOnly "org.slf4j:slf4j-api:$slf4jVersion"
+}
+
+jar {
+    // Name the artifact after your plugin (must match plugin.json id).
+    archiveBaseName = 'hello-plugin'
+    archiveVersion = ''
+}
+
+def pluginsDir = providers.gradleProperty('musmeta.plugins')
+        .orElse("${System.getProperty('user.home')}/.musmeta/plugins")
+        .get()
+
+tasks.register('publishPlugin', Copy) {
+    group = 'plugins'
+    description = 'Copies the built plugin JAR into the MusMeta plugins directory.'
+    dependsOn tasks.named('jar')
+    from(tasks.named('jar'))
+    into(pluginsDir)
+}

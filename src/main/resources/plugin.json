@@ -1,0 +1,14 @@
+{
+  "id": "hello-plugin",
+  "name": "Hello Plugin",
+  "version": "1.0.0",
+  "description": "Starter skeleton for a MusMeta plugin.",
+  "authors": [
+    "you"
+  ],
+  "main": "com.example.musmeta.HelloPlugin",
+  "mixins": [
+    "hello.mixins.json"
+  ],
+  "dependencies": []
+}
