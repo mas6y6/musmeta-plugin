@@ -4,25 +4,31 @@ Starter skeleton for a [MusMeta](https://github.com/mas6y6/MusMeta) plugin. It i
 `Plugin` entry point, a settings-tab registration, and a working mixin that targets
 `Utils.isRunningAsRoot()`.
 
+The template pulls the MusMeta app + plugin framework from a single JitPack artifact,
+`com.github.mas6y6:MusMeta:<version>`, so there is nothing to publish to `mavenLocal`.
+
 ## Requirements
 
 - JDK 25
-- MusMeta's `plugins:framework` published to `~/.m2/repository` (see below)
 
 ## Getting started
 
-1. **Publish the framework to mavenLocal** (from a MusMeta checkout):
+1. **Point the template at a MusMeta release** — set the version in `gradle.properties`:
 
-   ```bash
-   ./gradlew :plugins:framework:publishToMavenLocal
+   ```properties
+   musmeta=1.0.0
    ```
+
+   The value must be a tag on the `mas6y6/MusMeta` repository (`v1.0.0` can be referenced
+   as `1.0.0`). The first build pulls the fat JAR (app + framework) from `jitpack.io`.
 
 2. **Rename the template** to your plugin:
 
+   - `settings.gradle` → change `rootProject.name` (also becomes the JAR name).
    - `plugin.json` → change `id`, `name`, `version`, `authors`, `main`.
    - Move `com/example/musmeta/` to your own package and update `main` in `plugin.json`.
    - Update `hello.mixins.json`'s `package` (and rename the file to match the new `mixins` entry).
-   - `build.gradle` → `group`, `jar.archiveBaseName`, and any version bumps.
+   - `build.gradle` → `group` and `version`.
 
 3. **Build**:
 
@@ -42,8 +48,9 @@ Starter skeleton for a [MusMeta](https://github.com/mas6y6/MusMeta) plugin. It i
 ## Project layout
 
 ```
-build.gradle            Build script (framework via mavenLocal)
-gradle.properties       Dependency versions
+build.gradle            Just the plugin id + group/version (everything else lives in build-logic)
+build-logic/            Included build containing the `musmeta.plugin` convention
+gradle.properties       The MusMeta version to compile against
 src/main/java           Plugin entry point + mixin classes
 src/main/resources      plugin.json + mixin config
 ```
