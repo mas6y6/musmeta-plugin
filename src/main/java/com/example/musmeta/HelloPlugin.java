@@ -2,7 +2,7 @@ package com.example.musmeta;
 
 import com.mas6y6.musmeta.plugin.api.Plugin;
 import com.mas6y6.musmeta.registry.Registries;
-import com.mas6y6.musmeta.registry.base.SettingTab;
+import com.mas6y6.musmeta.registry.objects.SettingTabRegistry;
 
 import javax.swing.*;
 
@@ -15,7 +15,7 @@ public class HelloPlugin extends Plugin {
                 getContext().descriptor().id(),
                 getContext().descriptor().version());
 
-        Registries.SETTING_TABS.register("helloplugin", new SettingTab("Hello Plugin", null,
+        Registries.SETTING_TABS.register("helloplugin", new SettingTabRegistry("Hello Plugin", null,
                 () -> new JLabel("Hello from the MusMeta plugin template!")));
     }
 

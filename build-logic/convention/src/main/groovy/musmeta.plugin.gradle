@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url = 'https://jitpack.io' }
+}
+
+def musmetaVersion = providers.gradleProperty('musmeta').get()
+
+dependencies {
+    compileOnly "com.github.mas6y6:MusMeta:$musmetaVersion"
+}
+
+jar {
+    archiveBaseName = rootProject.name
+    archiveVersion = ''
+}
+
+def pluginsDir = providers.gradleProperty('musmeta.plugins')
+        .orElse("${System.getProperty('user.home')}/.musmeta/plugins")
+        .get()
+
+tasks.register('publishPlugin', Copy) {
+    group = 'plugins'
+    description = 'Copies the built plugin JAR into the MusMeta plugins directory.'
+    dependsOn tasks.named('jar')
+    from tasks.named('jar')
+    into(pluginsDir)
+}
