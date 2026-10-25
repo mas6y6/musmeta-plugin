@@ -1,5 +1,7 @@
 # musmeta-plugin-template
 
+Latest MusMeta release: [![](https://jitpack.io/v/mas6y6/MusMeta.svg)](https://jitpack.io/#mas6y6/MusMeta)
+
 Starter skeleton for a [MusMeta](https://github.com/mas6y6/MusMeta) plugin. It includes a
 `Plugin` entry point, a settings-tab registration, and a working mixin that targets
 `Utils.isRunningAsRoot()`.
