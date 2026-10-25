@@ -47,6 +47,41 @@ The template pulls the MusMeta app + plugin framework from a single JitPack arti
    This copies the JAR into `~/.musmeta/plugins` (or the directory set via the
    `musmeta.plugins` Gradle property). Restart MusMeta and the plugin will be discovered.
 
+5. **Test it locally**:
+
+   ```bash
+   ./gradlew runMusMeta
+   ```
+
+   Builds the plugin, installs it into the plugins directory, and launches MusMeta
+   itself so you can test your plugin. The app JAR is picked in this order:
+
+   1. `musmeta.jar` Gradle property — explicit path to a `MusMeta-*-all.jar`.
+   2. The newest `*-all.jar` from a sibling MusMeta checkout (`../build/libs`).
+   3. The JitPack artifact `com.github.mas6y6:MusMeta:<musmeta>` (downloaded on first run).
+
+   Useful properties:
+
+   | Property | Purpose |
+   |----------|---------|
+   | `-Pmusmeta.jar=<path>` | Run a specific MusMeta app JAR. |
+   | `-Pmusmeta.home=<dir>` | Isolated test home (config + plugins go there instead of `~/.musmeta`). |
+   | `-Pmusmeta.plugins=<dir>` | Where `publishPlugin` installs the JAR (defaults to `<home>/plugins` or `~/.musmeta/plugins`). |
+   | `-Pmusmeta.args="--debug"` | Program arguments passed to MusMeta. |
+
+## Version compatibility
+
+The template declares the MusMeta version it was built against via the
+`"musmeta"` field in `plugin.json`. It is filled in automatically from
+`gradle.properties` (`musmeta=1.3.2`) at build time, so it always matches your
+compile dependency.
+
+- Plugins compiled against a version with the **same major** as the running app
+  and **not newer than it** load normally.
+- Different major versions, or plugins newer than the running app, are skipped
+  at startup with a message in the log.
+- A plugin without the field (or with `"musmeta": "*"`) always loads.
+
 ## Project layout
 
 ```

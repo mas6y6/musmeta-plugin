@@ -10,5 +10,6 @@
   "mixins": [
     "hello.mixins.json"
   ],
-  "dependencies": []
+  "dependencies": [],
+  "musmeta": "${musmeta}"
 }

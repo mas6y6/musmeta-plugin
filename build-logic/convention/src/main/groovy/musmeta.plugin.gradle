@@ -25,6 +25,16 @@ jar {
     archiveVersion = ''
 }
 
+// Stamp the MusMeta version the plugin was built against into plugin.json's
+// "musmeta" field. The framework skips plugins whose declared version is
+// incompatible with the running app (see musmeta.plugin.api.MusMetaVersions).
+// Set "musmeta": "*" in plugin.json to opt out of the check.
+tasks.named('processResources') {
+    filesMatching('plugin.json') {
+        expand('musmeta': musmetaVersion)
+    }
+}
+
 // ============================================================
 // Plugin installation / local test run
 //
