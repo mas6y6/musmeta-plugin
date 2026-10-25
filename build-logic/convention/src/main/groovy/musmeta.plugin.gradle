@@ -25,7 +25,22 @@ jar {
     archiveVersion = ''
 }
 
+// ============================================================
+// Plugin installation / local test run
+//
+// Useful Gradle properties:
+//   -Pmusmeta.home=<dir>    Isolated MusMeta home directory (config + plugins
+//                           live in there instead of ~/.musmeta).
+//   -Pmusmeta.plugins=<dir> Where publishPlugin installs the plugin JAR
+//                           (defaults to <home>/plugins or ~/.musmeta/plugins).
+//   -Pmusmeta.jar=<path>    Explicit path to a MusMeta app fat JAR to run.
+//   -Pmusmeta.args="..."    Program arguments passed to MusMeta (e.g. --debug).
+// ============================================================
+
+def musMetaHome = providers.gradleProperty('musmeta.home').getOrNull()
+
 def pluginsDir = providers.gradleProperty('musmeta.plugins')
+        .orElse(providers.gradleProperty('musmeta.home').map { home -> "${home}/plugins" })
         .orElse("${System.getProperty('user.home')}/.musmeta/plugins")
         .get()
 
@@ -35,4 +50,78 @@ tasks.register('publishPlugin', Copy) {
     dependsOn tasks.named('jar')
     from tasks.named('jar')
     into(pluginsDir)
+}
+
+// A JitPack-backed configuration so the full app can still be launched even
+// when no local MusMeta checkout exists next to this plugin.
+def musMetaApp = configurations.create('musmetaApp') {
+    canBeResolved = true
+    canBeConsumed = false
+    transitive = false
+    visible = false
+    description = 'The MusMeta app fat JAR used by runMusMeta, resolved from JitPack.'
+}
+
+dependencies {
+    add('musmetaApp', "com.github.mas6y6:MusMeta:$musmetaVersion")
+}
+
+// JARs built from a local MusMeta checkout (the template usually sits inside
+// one, so `../build/libs` is checked before falling back to JitPack).
+def localAppJars = layout.files {
+    def libsDir = rootProject.file('../build/libs')
+    if (!libsDir.isDirectory()) {
+        return []
+    }
+    def candidates = (libsDir.listFiles() ?: []).findAll {
+        it.name.endsWith('-all.jar')
+    }
+    return candidates.sort { it.lastModified() }.reverse()
+}
+
+def musMetaAppJar = { ->
+    // 1. Explicit override (-Pmusmeta.jar=...)
+    def explicit = providers.gradleProperty('musmeta.jar').getOrNull()
+    if (explicit != null) {
+        def jarFile = rootProject.file(explicit)
+        if (!jarFile.isFile()) {
+            throw new GradleException(
+                    "musmeta.jar points to '${explicit}', which does not exist.")
+        }
+        return files(jarFile)
+    }
+
+    // 2. Newest fat JAR from a sibling MusMeta checkout.
+    def local = localAppJars
+    if (!local.isEmpty()) {
+        return local
+    }
+
+    // 3. JitPack artifact (resolved lazily when runMusMeta executes).
+    return musMetaApp
+}()
+
+tasks.register('runMusMeta', JavaExec) {
+    group = 'plugins'
+    description = 'Installs the plugin into the MusMeta plugins directory and runs MusMeta from the full app JAR.'
+    dependsOn tasks.named('publishPlugin')
+
+    mainClass.set('com.mas6y6.musmeta.launch.Launcher')
+    classpath = musMetaAppJar
+    workingDir = rootProject.projectDir
+
+    jvmArgs '-Xmx1G'
+
+    // Keep the app's plugin directory in sync with where publishPlugin
+    // installed this plugin (PluginManager honors -Dmusmeta.plugins).
+    jvmArgs "-Dmusmeta.plugins=${pluginsDir}"
+
+    if (musMetaHome != null) {
+        jvmArgs "-Dmusmeta.home=${musMetaHome}"
+    }
+
+    def programArgs = providers.gradleProperty('musmeta.args').getOrNull()
+    if (programArgs != null) {
+        args = programArgs.split('\\s+').toList()
+    }
 }
