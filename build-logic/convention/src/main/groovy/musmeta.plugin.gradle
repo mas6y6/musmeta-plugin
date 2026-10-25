@@ -34,10 +34,18 @@ musMetaApp.description =
         'The MusMeta app fat JAR used by runMusMeta, resolved from JitPack.'
 
 dependencies {
-    add('musmetaApp', "com.github.mas6y6.MusMeta:MusMeta:$musmetaVersion")
+    add(
+            'musmetaApp',
+            "com.github.mas6y6.MusMeta:MusMeta-app:${musmetaVersion}"
+    )
 
-    // MusMeta API available when compiling the plugin.
-    compileOnly "com.github.mas6y6.MusMeta:MusMeta:$musmetaVersion"
+    compileOnly(
+            "com.github.mas6y6.MusMeta:framework:${musmetaVersion}"
+    )
+
+    compileOnly(
+            "com.github.mas6y6.MusMeta:MusMeta:${musmetaVersion}"
+    )
 }
 
 jar {
