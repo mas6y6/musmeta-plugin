@@ -33,6 +33,7 @@ musMetaApp.visible = false
 musMetaApp.description =
         'The MusMeta app fat JAR used by runMusMeta, resolved from JitPack.'
 
+
 dependencies {
     add(
             'musmetaApp',
