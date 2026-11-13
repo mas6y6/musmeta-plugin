@@ -40,10 +40,6 @@ dependencies {
     )
 
     compileOnly(
-            "com.github.mas6y6.MusMeta:framework:${musmetaVersion}"
-    )
-
-    compileOnly(
             "com.github.mas6y6.MusMeta:MusMeta:${musmetaVersion}"
     )
 }
